@@ -7,9 +7,9 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { ConnectKitProvider } from 'connectkit'
 import { toast } from 'sonner'
 import { WagmiProvider } from 'wagmi'
-import { ConnectKitProvider } from 'connectkit'
 import { useAuthStore } from '@/stores/auth-store'
 import { handleServerError } from '@/lib/handle-server-error'
 import { config } from '@/lib/wagmi'
