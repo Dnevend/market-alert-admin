@@ -15,6 +15,7 @@ export function WalletConnectButton() {
   const [isSigning, setIsSigning] = useState(false)
   const [autoSigning, setAutoSigning] = useState(false)
   const [previousConnectionState, setPreviousConnectionState] = useState(false)
+  const [userCancelled, setUserCancelled] = useState(false)
   const { auth } = useAuthStore()
   const navigate = useNavigate()
 
@@ -81,12 +82,28 @@ export function WalletConnectButton() {
       auth.setUser(user)
       auth.setAccessToken(token)
 
+      // Reset cancellation state on successful sign-in
+      setUserCancelled(false)
+
       console.log('User signed in successfully, navigating...')
       toast.success('🎉 Welcome! You have been signed in successfully.')
       navigate({ to: '/', replace: true })
     } catch (error) {
       console.error('Wallet sign in error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to sign in with wallet')
+
+      // Check if user cancelled the signature request
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase()
+        if (errorMessage.includes('rejected') || errorMessage.includes('cancelled') || errorMessage.includes('denied')) {
+          console.log('🚫 User cancelled signature request')
+          setUserCancelled(true)
+          toast.info('Signature request cancelled. You can sign in manually when ready.')
+        } else {
+          toast.error(error.message)
+        }
+      } else {
+        toast.error('Failed to sign in with wallet')
+      }
     } finally {
       console.log('Finally block: resetting signing states')
       setIsSigning(false)
@@ -104,14 +121,20 @@ export function WalletConnectButton() {
     }
   }, [isConnected, previousConnectionState])
 
-  // Dedicated auto-sign function with duplicate prevention
+  // Dedicated auto-sign function with cancellation check
   const triggerAutoSignIn = useCallback(() => {
     console.log('🎯 triggerAutoSignIn called')
-    console.log('Current state:', { isConnected, address: !!address, hasUser: !!auth.user, isSigning, autoSigning })
+    console.log('Current state:', { isConnected, address: !!address, hasUser: !!auth.user, isSigning, autoSigning, userCancelled })
 
     // Prevent duplicate calls
     if (autoSigning || isSigning) {
       console.log('⚠️ Already signing in, skipping duplicate call')
+      return
+    }
+
+    // Don't auto-sign if user has previously cancelled
+    if (userCancelled) {
+      console.log('🚫 User previously cancelled signature, skipping auto sign-in')
       return
     }
 
@@ -128,7 +151,7 @@ export function WalletConnectButton() {
     } else {
       console.log('❌ Conditions not met for auto sign-in')
     }
-  }, [isConnected, address, auth.user, isSigning, autoSigning, handleSignInWithWallet])
+  }, [isConnected, address, auth.user, isSigning, autoSigning, userCancelled, handleSignInWithWallet])
 
   // Single auto-trigger effect to prevent double requests
   useEffect(() => {
@@ -151,15 +174,17 @@ export function WalletConnectButton() {
   }, [isConnected, address, triggerAutoSignIn])
 
   const handleDisconnect = useCallback(() => {
-    console.log('handleDisconnect called, resetting autoSigning')
+    console.log('handleDisconnect called, resetting all states')
     setAutoSigning(false)
+    setUserCancelled(false) // Reset cancellation state on disconnect
     disconnect()
     auth.reset()
   }, [disconnect, auth])
 
   const handleManualSignIn = useCallback(() => {
-    console.log('Manual sign-in requested, resetting autoSigning first')
+    console.log('Manual sign-in requested, resetting all states')
     setAutoSigning(false)
+    setUserCancelled(false) // Allow auto-sign on future connections
     // Small delay to ensure state is reset before triggering sign in
     setTimeout(() => {
       handleSignInWithWallet()
