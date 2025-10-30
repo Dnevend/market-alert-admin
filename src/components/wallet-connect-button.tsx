@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
+import { http } from '@/lib/http/axios'
 
 export function WalletConnectButton() {
   const { address, isConnected } = useAccount()
@@ -32,33 +33,58 @@ export function WalletConnectButton() {
 
     setIsSigning(true)
     try {
-      // Create a message to sign
-      const message = `Sign in to Market Alert Admin with wallet ${address}`
+      // Step 1: Get sign message from backend
+      const messageResponse = await http.get(`/auth/message?address=${address}`)
 
-      // Sign the message
+      if (!messageResponse.success) {
+        throw new Error(messageResponse.error?.message || 'Failed to get sign message')
+      }
+
+      const messageData = messageResponse.data as { message: string; timestamp: number }
+      const { message } = messageData
+
+      // Step 2: Sign the message
       const signature = await signMessageAsync({ message })
 
-      // Mock backend verification and user creation
-      // In a real app, you would send the signature and address to your backend
-      // for verification and receive a JWT token back
+      // Step 3: Verify signature with backend and get JWT token
+      const verifyResponse = await http.post('/auth/verify', {
+        address,
+        signature,
+      })
 
-      const mockUser = {
-        accountNo: address,
-        email: `${address}@wallet.user`, // Mock email based on wallet address
-        role: ['user'],
-        exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
-        walletAddress: address,
+      if (!verifyResponse.success) {
+        throw new Error(verifyResponse.error?.message || 'Failed to verify signature')
+      }
+
+      const { token, address: verifiedAddress, role, expiresIn } = verifyResponse.data as {
+        token: string
+        address: string
+        role: string
+        expiresIn: number
+      }
+
+      // Calculate expiration timestamp
+      const exp = Date.now() + (expiresIn * 1000) // Convert seconds to milliseconds
+
+      // Create user object matching our store interface
+      const user = {
+        accountNo: verifiedAddress,
+        email: `${verifiedAddress}@wallet.user`, // Generate email from address
+        role: [role], // Backend returns role as string, convert to array
+        exp: exp,
+        walletAddress: verifiedAddress,
         signature: signature,
       }
 
-      // Set user and access token
-      auth.setUser(mockUser)
-      auth.setAccessToken(`wallet-token-${signature.slice(0, 20)}`)
+      // Set user and access token in store
+      auth.setUser(user)
+      auth.setAccessToken(token)
 
       toast.success('Successfully signed in with wallet!')
       navigate({ to: '/', replace: true })
-    } catch {
-      toast.error('Failed to sign in with wallet')
+    } catch (error) {
+      console.error('Wallet sign in error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to sign in with wallet')
     } finally {
       setIsSigning(false)
     }
