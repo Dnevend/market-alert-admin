@@ -1,6 +1,7 @@
 import z from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
 import { Apps } from '@/features/apps'
+import { requireUser } from '@/lib/auth-guard'
 
 const appsSearchSchema = z.object({
   type: z
@@ -12,6 +13,9 @@ const appsSearchSchema = z.object({
 })
 
 export const Route = createFileRoute('/_authenticated/apps/')({
+  beforeLoad: () => {
+    requireUser()
+  },
   validateSearch: appsSearchSchema,
   component: Apps,
 })

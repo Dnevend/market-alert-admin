@@ -2,6 +2,7 @@ import z from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
 import { Tasks } from '@/features/tasks'
 import { priorities, statuses } from '@/features/tasks/data/data'
+import { requireUser } from '@/lib/auth-guard'
 
 const taskSearchSchema = z.object({
   page: z.number().optional().catch(1),
@@ -18,6 +19,9 @@ const taskSearchSchema = z.object({
 })
 
 export const Route = createFileRoute('/_authenticated/tasks/')({
+  beforeLoad: () => {
+    requireUser()
+  },
   validateSearch: taskSearchSchema,
   component: Tasks,
 })

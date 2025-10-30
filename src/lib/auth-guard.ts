@@ -19,8 +19,8 @@ export function requireAuth(redirectTo = '/wallet-sign-in') {
     })
   }
 
-  // 检查访问令牌是否过期
-  if (auth.user.exp && auth.user.exp < Date.now()) {
+  // 检查访问令牌是否过期（JWT exp字段是秒，需要转换为毫秒）
+  if (auth.user.exp && auth.user.exp * 1000 < Date.now()) {
     useAuthStore.getState().auth.reset()
     throw redirect({
       to: redirectTo,
@@ -45,11 +45,38 @@ export function requireRole(roles: string[], redirectTo = '/wallet-sign-in') {
 
   if (!hasRequiredRole) {
     throw redirect({
-      to: '/403', // 或者 redirectTo，取决于你的需求
+      to: '/403', // 权限不足页面
     })
   }
 
   return user
+}
+
+/**
+ * 检查用户是否为管理员
+ * @param redirectTo 重定向路径
+ * @returns 用户信息
+ */
+export function requireAdmin(redirectTo = '/wallet-sign-in') {
+  return requireRole(['admin'], redirectTo)
+}
+
+/**
+ * 检查用户是否为普通用户或更高权限
+ * @param redirectTo 重定向路径
+ * @returns 用户信息
+ */
+export function requireUser(redirectTo = '/wallet-sign-in') {
+  return requireRole(['user', 'admin'], redirectTo)
+}
+
+/**
+ * 检查用户是否为访客或更高权限
+ * @param redirectTo 重定向路径
+ * @returns 用户信息
+ */
+export function requireGuest(redirectTo = '/wallet-sign-in') {
+  return requireRole(['guest', 'user', 'admin'], redirectTo)
 }
 
 /**
