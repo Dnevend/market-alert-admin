@@ -17,7 +17,6 @@ export function WalletConnectButton() {
   const navigate = useNavigate()
 
   const handleConnect = async () => {
-    // Prioritize browser extension wallets (MetaMask, etc.)
     const browserConnector = connectors.find(
       (c) => c.type === 'injected' || c.id === 'metaMask'
     )
@@ -93,7 +92,6 @@ export function WalletConnectButton() {
   const handleDisconnect = () => {
     disconnect()
     auth.reset()
-    toast.success('Wallet disconnected')
   }
 
   if (isConnected && address) {
@@ -112,7 +110,7 @@ export function WalletConnectButton() {
           ) : auth.user ? (
             'Connected'
           ) : (
-            'Sign In with Wallet'
+            'Sign In'
           )}
         </Button>
         <Button variant='outline' onClick={handleDisconnect}>

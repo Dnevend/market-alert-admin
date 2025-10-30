@@ -1,14 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Shield, Wallet } from 'lucide-react'
+import { Wallet } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { WalletConnectButton } from '@/components/wallet-connect-button'
 import { AuthLayout } from '@/features/auth/auth-layout'
 
@@ -34,34 +27,13 @@ export function WalletSignIn() {
             </h1>
           </div>
           <p className='text-muted-foreground text-sm'>
-            Connect your crypto wallet to access the dashboard
+            Connect your wallet to continue
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
-              <Shield className='h-5 w-5' />
-              Secure Authentication
-            </CardTitle>
-            <CardDescription className='max-w-[350px]'>
-              Sign in securely using your Web3 wallet. No password required.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='text-muted-foreground text-sm'>
-              <p className='mb-2'>🔐 Your signature creates a secure session</p>
-              <p className='mb-2'>🌐 No personal data stored</p>
-              <p>
-                💰 Support for popular wallets (MetaMask, WalletConnect, etc.)
-              </p>
-            </div>
-
-            <div className='flex w-full justify-center'>
-              <WalletConnectButton />
-            </div>
-          </CardContent>
-        </Card>
+        <div className='flex w-full justify-center'>
+          <WalletConnectButton />
+        </div>
       </div>
     </AuthLayout>
   )
