@@ -20,6 +20,7 @@ import { Route as authWalletSignInRouteImport } from './routes/(auth)/wallet-sig
 import { Route as AuthenticatedSystemSettingsRouteRouteImport } from './routes/_authenticated/system-settings/route'
 import { Route as AuthenticatedSymbolsRouteRouteImport } from './routes/_authenticated/symbols/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedPermissionsTestRouteRouteImport } from './routes/_authenticated/permissions-test/route'
 import { Route as AuthenticatedAlertsRouteRouteImport } from './routes/_authenticated/alerts/route'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
@@ -88,6 +89,12 @@ const AuthenticatedSettingsRouteRoute =
   AuthenticatedSettingsRouteRouteImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPermissionsTestRouteRoute =
+  AuthenticatedPermissionsTestRouteRouteImport.update({
+    id: '/permissions-test',
+    path: '/permissions-test',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAlertsRouteRoute =
@@ -161,6 +168,7 @@ const AuthenticatedErrorsErrorRoute =
 
 export interface FileRoutesByFullPath {
   '/alerts': typeof AuthenticatedAlertsRouteRoute
+  '/permissions-test': typeof AuthenticatedPermissionsTestRouteRoute
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/symbols': typeof AuthenticatedSymbolsRouteRoute
   '/system-settings': typeof AuthenticatedSystemSettingsRouteRoute
@@ -185,6 +193,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/alerts': typeof AuthenticatedAlertsRouteRoute
+  '/permissions-test': typeof AuthenticatedPermissionsTestRouteRoute
   '/symbols': typeof AuthenticatedSymbolsRouteRoute
   '/system-settings': typeof AuthenticatedSystemSettingsRouteRoute
   '/wallet-sign-in': typeof authWalletSignInRoute
@@ -210,6 +219,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/alerts': typeof AuthenticatedAlertsRouteRoute
+  '/_authenticated/permissions-test': typeof AuthenticatedPermissionsTestRouteRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/_authenticated/symbols': typeof AuthenticatedSymbolsRouteRoute
   '/_authenticated/system-settings': typeof AuthenticatedSystemSettingsRouteRoute
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/alerts'
+    | '/permissions-test'
     | '/settings'
     | '/symbols'
     | '/system-settings'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/alerts'
+    | '/permissions-test'
     | '/symbols'
     | '/system-settings'
     | '/wallet-sign-in'
@@ -284,6 +296,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/_authenticated/alerts'
+    | '/_authenticated/permissions-test'
     | '/_authenticated/settings'
     | '/_authenticated/symbols'
     | '/_authenticated/system-settings'
@@ -394,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/permissions-test': {
+      id: '/_authenticated/permissions-test'
+      path: '/permissions-test'
+      fullPath: '/permissions-test'
+      preLoaderRoute: typeof AuthenticatedPermissionsTestRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/alerts': {
@@ -508,6 +528,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertsRouteRoute: typeof AuthenticatedAlertsRouteRoute
+  AuthenticatedPermissionsTestRouteRoute: typeof AuthenticatedPermissionsTestRouteRoute
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedSymbolsRouteRoute: typeof AuthenticatedSymbolsRouteRoute
   AuthenticatedSystemSettingsRouteRoute: typeof AuthenticatedSystemSettingsRouteRoute
@@ -522,6 +543,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertsRouteRoute: AuthenticatedAlertsRouteRoute,
+  AuthenticatedPermissionsTestRouteRoute:
+    AuthenticatedPermissionsTestRouteRoute,
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedSymbolsRouteRoute: AuthenticatedSymbolsRouteRoute,
   AuthenticatedSystemSettingsRouteRoute: AuthenticatedSystemSettingsRouteRoute,
