@@ -17,11 +17,12 @@ import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as authWalletSignInRouteImport } from './routes/(auth)/wallet-sign-in'
-import { Route as AuthenticatedSystemsRouteRouteImport } from './routes/_authenticated/systems/route'
+import { Route as AuthenticatedSystemSettingsRouteRouteImport } from './routes/_authenticated/system-settings/route'
+import { Route as AuthenticatedSymbolsRouteRouteImport } from './routes/_authenticated/symbols/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedAlertsRouteRouteImport } from './routes/_authenticated/alerts/route'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
-import { Route as AuthenticatedSystemsIndexRouteImport } from './routes/_authenticated/systems/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
@@ -31,9 +32,6 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
-import { Route as AuthenticatedSystemsSymbolsRouteRouteImport } from './routes/_authenticated/systems/symbols/route'
-import { Route as AuthenticatedSystemsSettingsRouteRouteImport } from './routes/_authenticated/systems/settings/route'
-import { Route as AuthenticatedSystemsAlertsRouteRouteImport } from './routes/_authenticated/systems/alerts/route'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -74,16 +72,28 @@ const authWalletSignInRoute = authWalletSignInRouteImport.update({
   path: '/wallet-sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedSystemsRouteRoute =
-  AuthenticatedSystemsRouteRouteImport.update({
-    id: '/systems',
-    path: '/systems',
+const AuthenticatedSystemSettingsRouteRoute =
+  AuthenticatedSystemSettingsRouteRouteImport.update({
+    id: '/system-settings',
+    path: '/system-settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSymbolsRouteRoute =
+  AuthenticatedSymbolsRouteRouteImport.update({
+    id: '/symbols',
+    path: '/symbols',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSettingsRouteRoute =
   AuthenticatedSettingsRouteRouteImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAlertsRouteRoute =
+  AuthenticatedAlertsRouteRouteImport.update({
+    id: '/alerts',
+    path: '/alerts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
@@ -96,12 +106,6 @@ const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   path: '/tasks/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSystemsIndexRoute =
-  AuthenticatedSystemsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedSystemsRouteRoute,
-  } as any)
 const AuthenticatedSettingsIndexRoute =
   AuthenticatedSettingsIndexRouteImport.update({
     id: '/',
@@ -154,28 +158,12 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedSystemsSymbolsRouteRoute =
-  AuthenticatedSystemsSymbolsRouteRouteImport.update({
-    id: '/symbols',
-    path: '/symbols',
-    getParentRoute: () => AuthenticatedSystemsRouteRoute,
-  } as any)
-const AuthenticatedSystemsSettingsRouteRoute =
-  AuthenticatedSystemsSettingsRouteRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedSystemsRouteRoute,
-  } as any)
-const AuthenticatedSystemsAlertsRouteRoute =
-  AuthenticatedSystemsAlertsRouteRouteImport.update({
-    id: '/alerts',
-    path: '/alerts',
-    getParentRoute: () => AuthenticatedSystemsRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
+  '/alerts': typeof AuthenticatedAlertsRouteRoute
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
-  '/systems': typeof AuthenticatedSystemsRouteRouteWithChildren
+  '/symbols': typeof AuthenticatedSymbolsRouteRoute
+  '/system-settings': typeof AuthenticatedSystemSettingsRouteRoute
   '/wallet-sign-in': typeof authWalletSignInRoute
   '/401': typeof errors401Route
   '/403': typeof errors403Route
@@ -183,9 +171,6 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
-  '/systems/alerts': typeof AuthenticatedSystemsAlertsRouteRoute
-  '/systems/settings': typeof AuthenticatedSystemsSettingsRouteRoute
-  '/systems/symbols': typeof AuthenticatedSystemsSymbolsRouteRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -195,11 +180,13 @@ export interface FileRoutesByFullPath {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
-  '/systems/': typeof AuthenticatedSystemsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
 }
 export interface FileRoutesByTo {
+  '/alerts': typeof AuthenticatedAlertsRouteRoute
+  '/symbols': typeof AuthenticatedSymbolsRouteRoute
+  '/system-settings': typeof AuthenticatedSystemSettingsRouteRoute
   '/wallet-sign-in': typeof authWalletSignInRoute
   '/401': typeof errors401Route
   '/403': typeof errors403Route
@@ -207,9 +194,6 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
-  '/systems/alerts': typeof AuthenticatedSystemsAlertsRouteRoute
-  '/systems/settings': typeof AuthenticatedSystemsSettingsRouteRoute
-  '/systems/symbols': typeof AuthenticatedSystemsSymbolsRouteRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -219,15 +203,16 @@ export interface FileRoutesByTo {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
-  '/systems': typeof AuthenticatedSystemsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRouteRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
-  '/_authenticated/systems': typeof AuthenticatedSystemsRouteRouteWithChildren
+  '/_authenticated/symbols': typeof AuthenticatedSymbolsRouteRoute
+  '/_authenticated/system-settings': typeof AuthenticatedSystemSettingsRouteRoute
   '/(auth)/wallet-sign-in': typeof authWalletSignInRoute
   '/(errors)/401': typeof errors401Route
   '/(errors)/403': typeof errors403Route
@@ -235,9 +220,6 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/systems/alerts': typeof AuthenticatedSystemsAlertsRouteRoute
-  '/_authenticated/systems/settings': typeof AuthenticatedSystemsSettingsRouteRoute
-  '/_authenticated/systems/symbols': typeof AuthenticatedSystemsSymbolsRouteRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -247,15 +229,16 @@ export interface FileRoutesById {
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
-  '/_authenticated/systems/': typeof AuthenticatedSystemsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/alerts'
     | '/settings'
-    | '/systems'
+    | '/symbols'
+    | '/system-settings'
     | '/wallet-sign-in'
     | '/401'
     | '/403'
@@ -263,9 +246,6 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
-    | '/systems/alerts'
-    | '/systems/settings'
-    | '/systems/symbols'
     | '/errors/$error'
     | '/settings/account'
     | '/settings/appearance'
@@ -275,11 +255,13 @@ export interface FileRouteTypes {
     | '/chats'
     | '/help-center'
     | '/settings/'
-    | '/systems/'
     | '/tasks'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/alerts'
+    | '/symbols'
+    | '/system-settings'
     | '/wallet-sign-in'
     | '/401'
     | '/403'
@@ -287,9 +269,6 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
-    | '/systems/alerts'
-    | '/systems/settings'
-    | '/systems/symbols'
     | '/errors/$error'
     | '/settings/account'
     | '/settings/appearance'
@@ -299,14 +278,15 @@ export interface FileRouteTypes {
     | '/chats'
     | '/help-center'
     | '/settings'
-    | '/systems'
     | '/tasks'
     | '/users'
   id:
     | '__root__'
     | '/_authenticated'
+    | '/_authenticated/alerts'
     | '/_authenticated/settings'
-    | '/_authenticated/systems'
+    | '/_authenticated/symbols'
+    | '/_authenticated/system-settings'
     | '/(auth)/wallet-sign-in'
     | '/(errors)/401'
     | '/(errors)/403'
@@ -314,9 +294,6 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
-    | '/_authenticated/systems/alerts'
-    | '/_authenticated/systems/settings'
-    | '/_authenticated/systems/symbols'
     | '/_authenticated/errors/$error'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
@@ -326,7 +303,6 @@ export interface FileRouteTypes {
     | '/_authenticated/chats/'
     | '/_authenticated/help-center/'
     | '/_authenticated/settings/'
-    | '/_authenticated/systems/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
   fileRoutesById: FileRoutesById
@@ -399,11 +375,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authWalletSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/systems': {
-      id: '/_authenticated/systems'
-      path: '/systems'
-      fullPath: '/systems'
-      preLoaderRoute: typeof AuthenticatedSystemsRouteRouteImport
+    '/_authenticated/system-settings': {
+      id: '/_authenticated/system-settings'
+      path: '/system-settings'
+      fullPath: '/system-settings'
+      preLoaderRoute: typeof AuthenticatedSystemSettingsRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/symbols': {
+      id: '/_authenticated/symbols'
+      path: '/symbols'
+      fullPath: '/symbols'
+      preLoaderRoute: typeof AuthenticatedSymbolsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings': {
@@ -411,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/users/': {
@@ -426,13 +416,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks'
       preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/systems/': {
-      id: '/_authenticated/systems/'
-      path: '/'
-      fullPath: '/systems/'
-      preLoaderRoute: typeof AuthenticatedSystemsIndexRouteImport
-      parentRoute: typeof AuthenticatedSystemsRouteRoute
     }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
@@ -497,27 +480,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/systems/symbols': {
-      id: '/_authenticated/systems/symbols'
-      path: '/symbols'
-      fullPath: '/systems/symbols'
-      preLoaderRoute: typeof AuthenticatedSystemsSymbolsRouteRouteImport
-      parentRoute: typeof AuthenticatedSystemsRouteRoute
-    }
-    '/_authenticated/systems/settings': {
-      id: '/_authenticated/systems/settings'
-      path: '/settings'
-      fullPath: '/systems/settings'
-      preLoaderRoute: typeof AuthenticatedSystemsSettingsRouteRouteImport
-      parentRoute: typeof AuthenticatedSystemsRouteRoute
-    }
-    '/_authenticated/systems/alerts': {
-      id: '/_authenticated/systems/alerts'
-      path: '/alerts'
-      fullPath: '/systems/alerts'
-      preLoaderRoute: typeof AuthenticatedSystemsAlertsRouteRouteImport
-      parentRoute: typeof AuthenticatedSystemsRouteRoute
-    }
   }
 }
 
@@ -544,31 +506,11 @@ const AuthenticatedSettingsRouteRouteWithChildren =
     AuthenticatedSettingsRouteRouteChildren,
   )
 
-interface AuthenticatedSystemsRouteRouteChildren {
-  AuthenticatedSystemsAlertsRouteRoute: typeof AuthenticatedSystemsAlertsRouteRoute
-  AuthenticatedSystemsSettingsRouteRoute: typeof AuthenticatedSystemsSettingsRouteRoute
-  AuthenticatedSystemsSymbolsRouteRoute: typeof AuthenticatedSystemsSymbolsRouteRoute
-  AuthenticatedSystemsIndexRoute: typeof AuthenticatedSystemsIndexRoute
-}
-
-const AuthenticatedSystemsRouteRouteChildren: AuthenticatedSystemsRouteRouteChildren =
-  {
-    AuthenticatedSystemsAlertsRouteRoute: AuthenticatedSystemsAlertsRouteRoute,
-    AuthenticatedSystemsSettingsRouteRoute:
-      AuthenticatedSystemsSettingsRouteRoute,
-    AuthenticatedSystemsSymbolsRouteRoute:
-      AuthenticatedSystemsSymbolsRouteRoute,
-    AuthenticatedSystemsIndexRoute: AuthenticatedSystemsIndexRoute,
-  }
-
-const AuthenticatedSystemsRouteRouteWithChildren =
-  AuthenticatedSystemsRouteRoute._addFileChildren(
-    AuthenticatedSystemsRouteRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlertsRouteRoute: typeof AuthenticatedAlertsRouteRoute
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
-  AuthenticatedSystemsRouteRoute: typeof AuthenticatedSystemsRouteRouteWithChildren
+  AuthenticatedSymbolsRouteRoute: typeof AuthenticatedSymbolsRouteRoute
+  AuthenticatedSystemSettingsRouteRoute: typeof AuthenticatedSystemSettingsRouteRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
@@ -579,8 +521,10 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlertsRouteRoute: AuthenticatedAlertsRouteRoute,
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
-  AuthenticatedSystemsRouteRoute: AuthenticatedSystemsRouteRouteWithChildren,
+  AuthenticatedSymbolsRouteRoute: AuthenticatedSymbolsRouteRoute,
+  AuthenticatedSystemSettingsRouteRoute: AuthenticatedSystemSettingsRouteRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,

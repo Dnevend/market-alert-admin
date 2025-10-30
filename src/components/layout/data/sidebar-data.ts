@@ -20,7 +20,6 @@ import {
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
-  MonitorCog,
   TrendingUp,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
@@ -79,30 +78,19 @@ export const sidebarData: SidebarData = {
           icon: Users,
         },
         {
-          title: 'Systems',
-          icon: MonitorCog,
-          items: [
-            {
-              title: 'Overview',
-              url: '/systems',
-              icon: MonitorCog,
-            },
-            {
-              title: 'Symbols',
-              url: '/systems/symbols',
-              icon: TrendingUp,
-            },
-            {
-              title: 'Alerts',
-              url: '/systems/alerts',
-              icon: Bell,
-            },
-            {
-              title: 'Settings',
-              url: '/systems/settings',
-              icon: Settings,
-            },
-          ],
+          title: 'Symbols',
+          url: '/symbols',
+          icon: TrendingUp,
+        },
+        {
+          title: 'Alerts',
+          url: '/alerts',
+          icon: Bell,
+        },
+        {
+          title: 'System Settings',
+          url: '/system-settings',
+          icon: Settings,
         },
       ],
     },
