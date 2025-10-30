@@ -27,3 +27,6 @@ dist-ssr
 
 # local
 .docs/
+
+# Other
+.tanstack/

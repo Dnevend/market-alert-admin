@@ -20,7 +20,7 @@ if (isDevelopment && (!alchemyId || !walletConnectProjectId)) {
 export const config = createConfig(
   getDefaultConfig({
     // Required API Keys (with fallback for development)
-    walletConnectProjectId: walletConnectProjectId || '',
+    walletConnectProjectId: walletConnectProjectId || 'demo-project-id',
 
     // Required
     appName: 'Market Alert Admin',
@@ -61,6 +61,13 @@ export const config = createConfig(
           : 'https://base.publicnode.com'
       ),
     },
+
+    // Additional options to prevent provider not found errors
+    ssr: false,
+    storage: typeof window !== 'undefined' ? window.localStorage : null,
+
+    // Enable auto-connection if wallet was previously connected
+    autoConnect: true,
   })
 )
 
