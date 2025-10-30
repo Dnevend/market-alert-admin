@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, XCircle, Clock, TrendingUp, TrendingDown } from 'lucide-react'
-import type { AlertHistory } from '../types'
 import { useAlerts } from './alerts-provider'
 
 export function AlertsStats() {

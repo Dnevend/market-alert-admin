@@ -25,7 +25,8 @@ export const config = createConfig(
     // Required
     appName: 'Market Alert Admin',
     appIcon: 'https://family.co/connectkit/logo.png', // Your app's icon here
-    appDescription: 'Admin dashboard for market alerts with Web3 authentication',
+    appDescription:
+      'Admin dashboard for market alerts with Web3 authentication',
 
     // Use browser wallets by default (MetaMask, etc.)
     enableFamily: false,
@@ -64,10 +65,6 @@ export const config = createConfig(
 
     // Additional options to prevent provider not found errors
     ssr: false,
-    storage: typeof window !== 'undefined' ? window.localStorage : null,
-
-    // Enable auto-connection if wallet was previously connected
-    autoConnect: true,
   })
 )
 
