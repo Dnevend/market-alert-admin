@@ -7,6 +7,7 @@ import axios, {
 } from 'axios'
 import type { HttpErrorResponse, HttpResponse } from './type.ts'
 import { useAuthStore } from '@/stores/auth-store'
+import { hasApiPermission, getApiPermissionError } from '@/lib/api-permissions'
 
 export class Http {
   instance: AxiosInstance
@@ -23,8 +24,33 @@ export class Http {
 
     this.instance.interceptors.request.use(
       async (config: InternalAxiosRequestConfig) => {
-        // Get token from Zustand store
+        // Get token and user roles from Zustand store
         const { auth } = useAuthStore.getState()
+
+        // Check API permissions before making the request
+        const method = config.method?.toUpperCase() || 'GET'
+        const url = config.url || ''
+
+        // Only check permissions for API requests (not for other URLs)
+        if (url.startsWith('/admin/') || url.startsWith('/api/')) {
+          const hasPermission = hasApiPermission(auth.user?.role, method, url)
+
+          if (!hasPermission) {
+            const error = getApiPermissionError(method, url)
+            console.warn(`API Access Denied: ${error.message}`)
+
+            // Reject the request with a custom error
+            return Promise.reject({
+              response: {
+                status: 403,
+                data: error,
+                config: config,
+              }
+            })
+          }
+        }
+
+        // Add authorization header if token exists
         if (auth.accessToken) {
           config.headers.Authorization = `Bearer ${auth.accessToken}`
         }

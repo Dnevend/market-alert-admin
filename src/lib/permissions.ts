@@ -3,6 +3,7 @@ export const UserRole = {
   ADMIN: 'admin',
   USER: 'user',
   VIEWER: 'viewer',
+  GUEST: 'guest',
 } as const
 
 export type UserRole = typeof UserRole[keyof typeof UserRole]
@@ -136,6 +137,10 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.SETTINGS_NOTIFICATIONS,
     Permission.SETTINGS_DISPLAY,
     Permission.HELP_VIEW,
+  ],
+  [UserRole.GUEST]: [
+    // 访客没有任何权限，只能查看公开页面
+    // 不分配任何API权限
   ],
 }
 

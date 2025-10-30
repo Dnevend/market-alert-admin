@@ -50,15 +50,20 @@ export function RoleSwitcher() {
               <RadioGroupItem value={UserRole.VIEWER} id="viewer" />
               <Label htmlFor="viewer">查看者 (Viewer) - 只读权限</Label>
             </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value={UserRole.GUEST} id="guest" />
+              <Label htmlFor="guest">访客 (Guest) - 无API权限</Label>
+            </div>
           </RadioGroup>
         </div>
 
         <div className="text-sm text-muted-foreground">
           <p>角色权限说明：</p>
           <ul className="list-disc list-inside mt-1 space-y-1">
-            <li>管理员：可以访问所有页面和功能</li>
-            <li>普通用户：可以访问基础功能，不能管理用户和系统设置</li>
-            <li>查看者：只能查看页面，不能进行编辑操作</li>
+            <li>管理员：可以访问所有页面和API接口</li>
+            <li>普通用户：可以访问基础功能和部分API接口</li>
+            <li>查看者：只能查看页面，API访问受限</li>
+            <li>访客：只能查看公开页面，无任何API权限</li>
           </ul>
         </div>
 

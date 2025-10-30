@@ -106,7 +106,7 @@ export const sidebarData: SidebarData = {
           title: 'Permissions Test',
           url: '/permissions-test',
           icon: Settings,
-          permissions: [Permission.DASHBOARD_VIEW], // 所有有仪表盘权限的用户都可以看到
+          // 不设置权限，所有角色都可以访问权限测试页面
         },
       ],
     },
