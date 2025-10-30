@@ -8,6 +8,8 @@ interface AuthUser {
   email: string
   role: string[]
   exp: number
+  walletAddress?: string
+  signature?: string
 }
 
 interface AuthState {
@@ -18,6 +20,8 @@ interface AuthState {
     setAccessToken: (accessToken: string) => void
     resetAccessToken: () => void
     reset: () => void
+    isWalletConnected: boolean
+    setIsWalletConnected: (connected: boolean) => void
   }
 }
 
@@ -45,9 +49,12 @@ export const useAuthStore = create<AuthState>()((set) => {
           removeCookie(ACCESS_TOKEN)
           return {
             ...state,
-            auth: { ...state.auth, user: null, accessToken: '' },
+            auth: { ...state.auth, user: null, accessToken: '', isWalletConnected: false },
           }
         }),
+      isWalletConnected: false,
+      setIsWalletConnected: (connected) =>
+        set((state) => ({ ...state, auth: { ...state.auth, isWalletConnected: connected } })),
     },
   }
 })

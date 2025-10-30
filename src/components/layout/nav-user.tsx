@@ -6,8 +6,10 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  Wallet,
 } from 'lucide-react'
 import useDialogState from '@/hooks/use-dialog-state'
+import { useAuthStore } from '@/stores/auth-store'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -37,6 +39,7 @@ type NavUserProps = {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar()
   const [open, setOpen] = useDialogState()
+  const { auth } = useAuthStore()
 
   return (
     <>
@@ -104,6 +107,14 @@ export function NavUser({ user }: NavUserProps) {
                     Notifications
                   </Link>
                 </DropdownMenuItem>
+                {auth.user?.walletAddress && (
+                  <DropdownMenuItem className="text-muted-foreground">
+                    <Wallet />
+                    <span className="truncate">
+                      {auth.user.walletAddress.slice(0, 6)}...{auth.user.walletAddress.slice(-4)}
+                    </span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem
