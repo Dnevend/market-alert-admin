@@ -80,6 +80,25 @@ export class Http {
     this.instance.interceptors.response.use(
       (response: AxiosResponse<HttpResponse>) => {
         return { ...response, ...response.data }
+      },
+      (error: AxiosError) => {
+        // Handle 401 Unauthorized - Token expired
+        if (error.response?.status === 401) {
+          console.warn('Token expired or unauthorized access')
+
+          // Clear authentication state
+          useAuthStore.getState().auth.reset()
+
+          // Get current redirect URL
+          const currentPath = window.location.pathname + window.location.search
+
+          // Redirect to login page with redirect parameter
+          window.location.href = `/wallet-sign-in?redirect=${encodeURIComponent(currentPath)}`
+
+          return Promise.reject(error)
+        }
+
+        return Promise.reject(error)
       }
     )
   }
