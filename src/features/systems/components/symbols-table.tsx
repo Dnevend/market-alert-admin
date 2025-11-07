@@ -10,10 +10,21 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Power, PowerOff } from 'lucide-react'
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Power, PowerOff, Edit } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -23,7 +34,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -43,23 +53,137 @@ export function SymbolsTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+  const [editingSymbol, setEditingSymbol] = React.useState<TradingSymbol | null>(null)
+  const [editForm, setEditForm] = React.useState({
+    symbol: '',
+    threshold_percent: 0,
+    cooldown_minutes: 0,
+    webhook_url: '',
+    enabled: true,
+  })
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [formErrors, setFormErrors] = React.useState<Record<string, string>>({})
 
   const { updateSymbol, deleteSymbol } = useSymbols()
+
+  const validateForm = (formData: typeof editForm): Record<string, string> => {
+    const errors: Record<string, string> = {}
+
+    if (formData.threshold_percent <= 0 || formData.threshold_percent > 1) {
+      errors.threshold_percent = 'Threshold must be between 0% and 100%'
+    }
+
+    if (formData.cooldown_minutes < 0) {
+      errors.cooldown_minutes = 'Cooldown must be a positive number'
+    }
+
+    if (formData.webhook_url && !isValidUrl(formData.webhook_url)) {
+      errors.webhook_url = 'Please enter a valid URL'
+    }
+
+    return errors
+  }
+
+  const isValidUrl = (string: string): boolean => {
+    try {
+      const url = new URL(string)
+      return url.protocol === 'http:' || url.protocol === 'https:'
+    } catch (_) {
+      return false
+    }
+  }
 
   const handleToggleEnabled = async (symbol: TradingSymbol) => {
     try {
       await updateSymbol(symbol.symbol, { enabled: !symbol.enabled })
+      toast.success(`Symbol ${symbol.symbol} has been ${!symbol.enabled ? 'enabled' : 'disabled'}.`)
     } catch (err) {
       console.error('Failed to toggle symbol:', err)
+      toast.error("Failed to toggle symbol status. Please try again.")
     }
   }
 
   const handleDelete = async (symbol: TradingSymbol) => {
     try {
       await deleteSymbol(symbol.symbol)
+      toast.success(`Symbol ${symbol.symbol} has been deleted.`)
     } catch (err) {
       console.error('Failed to delete symbol:', err)
+      toast.error("Failed to delete symbol. Please try again.")
     }
+  }
+
+  const handleEdit = (symbol: TradingSymbol) => {
+    setEditingSymbol(symbol)
+    setEditForm({
+      symbol: symbol.symbol,
+      threshold_percent: symbol.threshold_percent,
+      cooldown_minutes: symbol.cooldown_minutes,
+      webhook_url: symbol.webhook_url || '',
+      enabled: symbol.enabled,
+    })
+    setFormErrors({})
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingSymbol) return
+
+    // Validate form
+    const errors = validateForm(editForm)
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+
+    setIsSubmitting(true)
+    setFormErrors({})
+
+    try {
+      await updateSymbol(editingSymbol.symbol, {
+        threshold_percent: editForm.threshold_percent,
+        cooldown_minutes: editForm.cooldown_minutes,
+        webhook_url: editForm.webhook_url || null,
+        enabled: editForm.enabled,
+      })
+
+      toast.success(`Symbol ${editingSymbol.symbol} has been updated successfully.`)
+
+      setEditingSymbol(null)
+      setFormErrors({})
+    } catch (err) {
+      console.error('Failed to update symbol:', err)
+
+      // Handle different types of errors
+      let errorMessage = "Failed to update symbol. Please try again."
+
+      if (err instanceof Error) {
+        if (err.message.includes('network') || err.message.includes('fetch')) {
+          errorMessage = "Network error. Please check your connection and try again."
+        } else if (err.message.includes('401') || err.message.includes('403')) {
+          errorMessage = "Authentication error. Please log in again."
+        } else if (err.message.includes('404')) {
+          errorMessage = "Symbol not found or has been deleted."
+        } else if (err.message.includes('409') || err.message.includes('conflict')) {
+          errorMessage = "Symbol has been modified by another user. Please refresh and try again."
+        }
+      }
+
+      toast.error(errorMessage)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingSymbol(null)
+    setFormErrors({})
+    setEditForm({
+      symbol: '',
+      threshold_percent: 0,
+      cooldown_minutes: 0,
+      webhook_url: '',
+      enabled: true,
+    })
   }
 
   const columns: ColumnDef<TradingSymbol>[] = [
@@ -163,6 +287,14 @@ export function SymbolsTable() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                onClick={() => handleEdit(symbol)}
+                className='flex items-center space-x-2'
+              >
+                <Edit className='h-4 w-4' />
+                <span>Edit</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
                 onClick={() => handleToggleEnabled(symbol)}
                 className='flex items-center space-x-2'
               >
@@ -219,7 +351,8 @@ export function SymbolsTable() {
   }
 
   return (
-    <div className='w-full'>
+    <>
+      <div className='w-full'>
       <div className='flex items-center py-4'>
         <Input
           placeholder='Filter symbols...'
@@ -331,5 +464,124 @@ export function SymbolsTable() {
         </div>
       </div>
     </div>
+      <Dialog open={!!editingSymbol} onOpenChange={(open) => !open && handleCancelEdit()}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Symbol</DialogTitle>
+            <DialogDescription>
+              Make changes to {editingSymbol?.symbol} here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="symbol" className="text-right">
+                Symbol
+              </Label>
+              <Input
+                id="symbol"
+                value={editForm.symbol}
+                disabled
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="threshold" className="text-right">
+                Threshold (%)
+              </Label>
+              <div className="col-span-3 space-y-1">
+                <Input
+                  id="threshold"
+                  type="number"
+                  step="0.01"
+                  value={(editForm.threshold_percent * 100).toFixed(2)}
+                  onChange={(e) => setEditForm(prev => ({
+                    ...prev,
+                    threshold_percent: parseFloat(e.target.value) / 100
+                  }))}
+                  className={formErrors.threshold_percent ? "border-red-500" : ""}
+                />
+                {formErrors.threshold_percent && (
+                  <p className="text-sm text-red-500">{formErrors.threshold_percent}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cooldown" className="text-right">
+                Cooldown (min)
+              </Label>
+              <div className="col-span-3 space-y-1">
+                <Input
+                  id="cooldown"
+                  type="number"
+                  value={editForm.cooldown_minutes}
+                  onChange={(e) => setEditForm(prev => ({
+                    ...prev,
+                    cooldown_minutes: parseInt(e.target.value) || 0
+                  }))}
+                  className={formErrors.cooldown_minutes ? "border-red-500" : ""}
+                />
+                {formErrors.cooldown_minutes && (
+                  <p className="text-sm text-red-500">{formErrors.cooldown_minutes}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="webhook" className="text-right">
+                Webhook URL
+              </Label>
+              <div className="col-span-3 space-y-1">
+                <Input
+                  id="webhook"
+                  type="url"
+                  value={editForm.webhook_url}
+                  onChange={(e) => setEditForm(prev => ({
+                    ...prev,
+                    webhook_url: e.target.value
+                  }))}
+                  placeholder="https://example.com/webhook"
+                  className={formErrors.webhook_url ? "border-red-500" : ""}
+                />
+                {formErrors.webhook_url && (
+                  <p className="text-sm text-red-500">{formErrors.webhook_url}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="enabled" className="text-right">
+                Enabled
+              </Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <Switch
+                  id="enabled"
+                  checked={editForm.enabled}
+                  onCheckedChange={(checked) => setEditForm(prev => ({
+                    ...prev,
+                    enabled: checked
+                  }))}
+                />
+                <Label htmlFor="enabled" className="text-sm font-normal">
+                  {editForm.enabled ? 'Symbol is active' : 'Symbol is disabled'}
+                </Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleCancelEdit}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
